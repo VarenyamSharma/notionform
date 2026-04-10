@@ -373,11 +373,11 @@ export const AddSourceModal = () => {
       const blocks = lines.map((line, index) => {
         const isHeading1 = line.startsWith("# ");
         const isHeading2 = line.startsWith("## ");
-        const blockType = isHeading1 ? "heading" : isHeading2 ? "heading" : "paragraph";
+        const isListItem = line.startsWith("- ");
         
         return {
           id: `block-${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`,
-          type: blockType as "heading" | "paragraph",
+          type: (isHeading1 ? "heading" : isHeading2 ? "heading" : "paragraph") as const,
           props: {
             textColor: "default",
             backgroundColor: "default",

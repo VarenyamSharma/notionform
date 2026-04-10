@@ -15,7 +15,10 @@ import {
   Search,
   Settings,
   Trash,
-  FilePlus,
+  Sun,
+  Moon,
+  Monitor,
+  Check,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,12 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { Trashbox } from "./Trashbox";
 import { useSearch } from "@/hooks/use-search";
 import { Navbar } from "./Navbar";
@@ -41,7 +39,7 @@ import { Navbar } from "./Navbar";
 const Navigation = () => {
   const params = useParams();
   const pathname = usePathname();
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, theme, setTheme } = useTheme();
   const search = useSearch();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
@@ -52,7 +50,7 @@ const Navigation = () => {
 
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
-  const [isComingSoonDialogOpen, setIsComingSoonDialogOpen] = useState(false);
+
 
   const create = useMutation(api.forms.create);
 
@@ -201,9 +199,37 @@ const Navigation = () => {
 
           <UserItem />
           <Item label="Search" icon={Search} isSearch onClick={search.onOpen} />
-          <Item label="Settings" icon={Settings} onClick={() => {}} />
+          <Popover>
+            <PopoverTrigger className="w-full">
+              <Item label="Settings" icon={Settings} />
+            </PopoverTrigger>
+            <PopoverContent side="right" align="start" className="w-56 p-2">
+              <div className="mb-1 px-2 py-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Appearance</p>
+              </div>
+              {([
+                { value: "light",  label: "Light",  Icon: Sun },
+                { value: "dark",   label: "Dark",   Icon: Moon },
+                { value: "system", label: "System", Icon: Monitor },
+              ] as const).map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  className={cn(
+                    "w-full flex items-center gap-x-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                    "hover:bg-neutral-200 dark:hover:bg-neutral-700",
+                    theme === value && "bg-neutral-200 dark:bg-neutral-700 font-medium"
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="flex-1 text-left">{label}</span>
+                  {theme === value && <Check className="h-3.5 w-3.5 text-primary" />}
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
           <Item onClick={handleCreate} label="New Note" icon={PlusCircle} />
-          <Item onClick={() => setIsComingSoonDialogOpen(true)} label="Notes from Source" icon={FilePlus} />
+
         </div>
 
         <div className="mt-4">
@@ -256,19 +282,7 @@ const Navigation = () => {
         )}
       </div>
 
-      {/* Coming Soon Dialog */}
-      <Dialog open={isComingSoonDialogOpen} onOpenChange={setIsComingSoonDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Coming Soon</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground text-center">
-              The &quot;Notes from Source&quot; feature is currently under development and will be available soon!
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
+
     </>
   );
 };
